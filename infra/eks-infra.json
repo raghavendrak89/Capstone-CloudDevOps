@@ -1,0 +1,14 @@
+[
+    {
+        "ParameterKey": "EnvironmentName",
+        "ParameterValue": "rak-cluster"
+    },
+    {
+        "ParameterKey": "EKSIAMRoleName",
+        "ParameterValue": "EKSIAMRole"
+    },
+    {
+        "ParameterKey": "EKSClusterName",
+        "ParameterValue": "rak-cluster"
+    }
+]

@@ -25,16 +25,15 @@ set -eu -o pipefail
 
 echo "Bootstraping EKS cluster for webhook app .."
 
+#./infra/aws-stack.sh us-east-2 infra-stack ./infra/eks-infra.yaml ./infra/eks-infra.json
+#if [ $? -eq 0  ]; then
+#    echo "EKS infra creation successfull .."
+#else
+#    echo "Failed to create EKS infra!"
+#    exit 1
+#fi
 
-./cloudformation/aws-stack.sh $region infra-stack eks-infra.yaml eks-infra.json
-if [ $? -eq 0  ]; then
-    echo "EKS infra creation successfull .."
-else
-    echo "Failed to create EKS infra!"
-    exit 1
-fi
-
-./cloudformation/aws-stack.sh $region nodegroup-stack eks-nodegroup.yaml eks-nodegroup.json
+./infra/aws-stack.sh us-east-2 nodegroup-stack ./infra/eks-nodegroup.yaml ./infra/eks-nodegroup.json
 if [ $? -eq 0  ]; then
     echo "EKS nodegroup creation successfull .."
 else
@@ -47,7 +46,7 @@ aws eks --region us-east-2 update-kubeconfig --name rak-cluster
 
 aws_iam_arn=`aws cloudformation describe-stacks --stack-name nodegroup-stack | jq '.Stacks[].Outputs[] | select(.OutputKey=="NodeInstanceRole") | .OutputValue'`
 
-sed -i "s~aws_iam_arn~`echo $aws_iam_arn | sed -e 's/^"//' -e 's/"$//'`~g" ./cloudformation/aws-auth-cm.yaml
+sed -i "s~aws_iam_arn~`echo $aws_iam_arn | sed -e 's/^"//' -e 's/"$//'`~g" ./infra/aws-auth-cm.yaml
 
 if [ $? -eq 0  ]; then
     echo "EKS infra creation successfull .."
@@ -56,7 +55,7 @@ else
     exit 1
 fi
 
-kubectl apply -f ./cloudformation/aws-auth-cm.yaml
+kubectl apply -f ./infra/aws-auth-cm.yaml
 
 sleep 60
 
