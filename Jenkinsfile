@@ -1,33 +1,37 @@
 pipeline {
-    agent any
-    stages {
-        stage('Clone Project') {
-            steps {
-                git url: 'https://github.com/raghavendrak89/Capstone-CloudDevOps.git'
-            }
-        }
-        stage('PyLint') {
-            steps {
-                sh 'pylint ./webhook/app_flask.py'
-            }
-        }
-        stage('Build Image') {
-            steps {
-                sh 'docker build -t udacity_capstone:0.${BUILD_ID} .'
-            }
-        }
-        stage('Push Image') {
-            steps {
-                sh 'docker tag udacity_capstone:0.${BUILD_ID} raghavendrak/udacity_capstone:0.${BUILD_ID}'
-                sh 'docker push raghavendrak/udacity_capstone:0.${BUILD_ID}'
-            }
-        }
-        stage('Create kubernetes cluster') {
-            steps {
-                withAWS(region:'us-west-2', credentials:'aws-static') {
-				    sh 'bash ./infra/hms-bootstrap.sh'	
-                }
-            }
-        }
+   agent any
+   parameters {
+        choice(
+            choices: ['install' , 'upgrade'],
+            description: 'Install/Upgrade',
+            name: 'DEPLOYMENT_ACTION')
+       	string(name: 'app', description: 'Application name to be Deployed')
+       	string(name: 'image', description: 'Image to be Deployed')
     }
+   stages {
+       stage('Install') {
+            when {
+                // Only say hello if a "greeting" is requested
+                expression { params.DEPLOYMENT_ACTION == 'install' }
+            }
+            steps {
+                echo "Installing the deployment .."
+                kubectl apply -f ./${ params.app }-deployment.yaml
+                kubectl apply -f ./${ params.app }-service.yaml 
+                echo "Successfully created the deployment"
+            }
+            when {
+                expression { params.DEPLOYMENT_ACTION == 'upgrade' }
+            }
+            steps {
+                echo "Upgrading the deployment (Rolling upgrade) .."
+                sh "kubectl set image deployments/${ params.app } ${ params.app }=${ params.image }"
+            }
+			stage('Test webhook') {
+				steps {
+					sh 'python3 ./test/test.py'
+				}
+			}
+       }
+   }
 }
