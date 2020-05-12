@@ -25,7 +25,7 @@ pipeline {
         stage('Create kubernetes cluster') {
             steps {
                 withAWS(region:'us-west-2', credentials:'aws-static') {
-				    sh './infra/hms-bootstrap.sh'	
+				    sh 'bash ./infra/hms-bootstrap.sh'	
                 }
             }
         }
