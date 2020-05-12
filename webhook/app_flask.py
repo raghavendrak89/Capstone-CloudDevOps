@@ -4,6 +4,11 @@ from flask import Flask, request, abort
 
 APP = Flask(__name__)
 
+@APP.route('/health', methods=['GET'])
+def webhook():
+    """Demonstrate docstrings and does nothing really."""
+    return {'State', 'Heath check success'}
+
 @APP.route('/argocd', methods=['POST'])
 def webhook():
     """Demonstrate docstrings and does nothing really."""
