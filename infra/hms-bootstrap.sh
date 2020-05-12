@@ -25,13 +25,13 @@ set -eu -o pipefail
 
 echo "Bootstraping EKS cluster for webhook app .."
 
-#./infra/aws-stack.sh us-east-2 infra-stack ./infra/eks-infra.yaml ./infra/eks-infra.json
-#if [ $? -eq 0  ]; then
-#    echo "EKS infra creation successfull .."
-#else
-#    echo "Failed to create EKS infra!"
-#    exit 1
-#fi
+./infra/aws-stack.sh us-east-2 infra-stack ./infra/eks-infra.yaml ./infra/eks-infra.json
+if [ $? -eq 0  ]; then
+    echo "EKS infra creation successfull .."
+else
+    echo "Failed to create EKS infra!"
+    exit 1
+fi
 
 ./infra/aws-stack.sh us-east-2 nodegroup-stack ./infra/eks-nodegroup.yaml ./infra/eks-nodegroup.json
 if [ $? -eq 0  ]; then
