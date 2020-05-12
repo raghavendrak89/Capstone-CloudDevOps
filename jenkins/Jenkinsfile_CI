@@ -11,6 +11,11 @@ pipeline {
                 sh 'pylint ./webhook/app_flask.py'
             }
         }
+        #stage('Test webhook') {
+        #    steps {
+        #        sh 'python3 ./test/test.py'
+        #    }
+        #}
         stage('Build Image') {
             steps {
                 sh 'docker build -t udacity_capstone:0.${BUILD_ID} .'
