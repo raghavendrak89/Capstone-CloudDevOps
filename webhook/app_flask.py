@@ -93,12 +93,9 @@ def slack_alert(alerts):
                 ]
             })
 
-    requests.post(
-        "https://hooks.slack.com/services/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",
-        json={
-            "attachments": attachments
-        }
-    )
+            print({
+                             "attachments": attachments
+                })
     return True
 
 
