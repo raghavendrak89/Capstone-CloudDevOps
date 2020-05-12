@@ -16,11 +16,6 @@ pipeline {
                 sh 'docker build -t udacity_capstone:0.${BUILD_ID} .'
             }
         }
-        stage('Security Scan') {
-            steps {
-                aquaMicroscanner imageName: 'udacity_capstone:0.${BUILD_ID}', notCompleted: 'exit 1', onDisallowed: 'fail'
-            }
-        }
         stage('Push Image') {
             steps {
                 sh 'docker tag udacity_capstone:0.${BUILD_ID} raghavendrak/udacity_capstone:0.${BUILD_ID}'
@@ -30,7 +25,7 @@ pipeline {
         stage('Create kubernetes cluster') {
             steps {
                 withAWS(region:'us-west-2', credentials:'aws-static') {
-				    sh ./infra/hms-bootstrap.sh	
+				    sh './infra/hms-bootstrap.sh'	
                 }
             }
         }
