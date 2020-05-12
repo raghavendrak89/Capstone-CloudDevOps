@@ -29,11 +29,11 @@ pipeline {
                 sh 'echo "Upgrading the deployment (Rolling upgrade) .."'
                 sh "kubectl set image deployments/${ params.app } ${ params.app }=${ params.image }"
             }
-			stage('Test webhook') {
-				steps {
-					sh 'python3 ./test/test.py'
-				}
-			}
        }
+        stage('Test webhook') {
+            steps {
+                sh 'python3 ./test/test.py'
+            }
+        }
    }
 }
