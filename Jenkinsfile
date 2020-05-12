@@ -15,16 +15,16 @@ pipeline {
                 expression { params.DEPLOYMENT_ACTION == 'install' }
             }
             steps {
-                echo "Installing the deployment .."
-                kubectl apply -f ./${ params.app }-deployment.yaml
-                kubectl apply -f ./${ params.app }-service.yaml 
-                echo "Successfully created the deployment"
+                sh 'echo "Installing the deployment .."''
+                sh 'kubectl apply -f ./${ params.app }-deployment.yaml'
+                sh 'kubectl apply -f ./${ params.app }-service.yaml'
+                sh 'echo "Successfully created the deployment"'
             }
             when {
                 expression { params.DEPLOYMENT_ACTION == 'upgrade' }
             }
             steps {
-                echo "Upgrading the deployment (Rolling upgrade) .."
+                sh 'echo "Upgrading the deployment (Rolling upgrade) .."'
                 sh "kubectl set image deployments/${ params.app } ${ params.app }=${ params.image }"
             }
 			stage('Test webhook') {
