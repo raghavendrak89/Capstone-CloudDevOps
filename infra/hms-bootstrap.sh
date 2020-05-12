@@ -1,11 +1,31 @@
 #!/usr/bin/env bash
 set -e
 
+usage="Usage: bash $(basename "$0") | ./$(basename "$0") | sh $(basename "$0")
+    Any arguments passed will be discarded ..
+"
+
+if [ "$1" == "-h" ] || [ "$1" == "--help" ] || [ "$1" == "help" ] || [ "$1" == "usage" ] ; then
+  echo "$usage"
+  exit -1
+fi
+
+region=`aws configure get region`
+if [ -z "${REGION}"  ]
+then
+    region=${REGION}
+else
+    echo "REGION input is not defined using configured region .."
+    region=`aws configure get region`
+fi
+
+
+shopt -s failglob
 set -eu -o pipefail
 
 echo "Bootstraping EKS cluster for webhook app .."
 
-echo "./infra/aws-stack.sh us-east-2 infra-stack ./infra/eks-infra.yaml ./infra/eks-infra.json"
+./infra/aws-stack.sh us-east-2 infra-stack ./infra/eks-infra.yaml ./infra/eks-infra.json
 if [ $? -eq 0  ]; then
     echo "EKS infra creation successfull .."
 else
@@ -13,11 +33,7 @@ else
     exit 1
 fi
 
-echo "./infra/aws-stack.sh us-east-2 nodegroup-stack ./infra/eks-nodegroup.yaml ./infra/eks-nodegroup.json"
-echo "Checking if stack exists ..."
-echo  "Stack does not exist, creating ..."
-echo  "Waiting for stack to be created ..."
-echo  "Cloudformation stack create/update successfully!"
+./infra/aws-stack.sh us-east-2 nodegroup-stack ./infra/eks-nodegroup.yaml ./infra/eks-nodegroup.json
 if [ $? -eq 0  ]; then
     echo "EKS nodegroup creation successfull .."
 else
@@ -26,12 +42,12 @@ else
 fi
 
 echo "Updating kubeconfig with the EKS cluster .."
-echo "aws eks --region us-east-2 update-kubeconfig --name rak-cluster"
+aws eks --region us-east-2 update-kubeconfig --name rak-cluster
 
-echo "Checking if stack exists ..."
-echo  "Stack does not exist, creating ..."
-echo  "Waiting for stack to be created ..."
-echo  "Cloudformation stack create/update successfully!"
+aws_iam_arn=`aws cloudformation describe-stacks --stack-name nodegroup-stack | jq '.Stacks[].Outputs[] | select(.OutputKey=="NodeInstanceRole") | .OutputValue'`
+
+sed -i "s~aws_iam_arn~`echo $aws_iam_arn | sed -e 's/^"//' -e 's/"$//'`~g" ./infra/aws-auth-cm.yaml
+
 if [ $? -eq 0  ]; then
     echo "EKS infra creation successfull .."
 else
@@ -39,8 +55,9 @@ else
     exit 1
 fi
 
-echo "Creating kubernetes configmap to join the nodes to clusrter"
-echo "Successfully created kubernetes configmap .."
+kubectl apply -f ./infra/aws-auth-cm.yaml
 
+sleep 60
 
 echo "Successfully installed EKS .."
+

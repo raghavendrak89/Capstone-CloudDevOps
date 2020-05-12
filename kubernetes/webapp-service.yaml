@@ -6,7 +6,6 @@ metadata:
     name: webhook
 spec:
   ports:
-    - name: service
       port: 8885
       targetPort: 8885
       nodePort: 32633

@@ -1,13 +1,13 @@
 """imports"""
 import json
-from flask import Flask, request, abort
+from flask import Flask, request, abort, jsonify
 
 APP = Flask(__name__)
 
-@APP.route('/health', methods=['GET'])
-def webhook():
+@APP.route('/health')
+def test_webhook():
     """Demonstrate docstrings and does nothing really."""
-    return {'State', 'Heath check success'}
+    return 'Hello World from Python Flask webhook!'
 
 @APP.route('/argocd', methods=['POST'])
 def webhook():
