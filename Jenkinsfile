@@ -20,6 +20,8 @@ pipeline {
                 sh 'kubectl apply -f ./${ params.app }-service.yaml'
                 sh 'echo "Successfully created the deployment"'
             }
+       }
+       stage('Upgrade') {
             when {
                 expression { params.DEPLOYMENT_ACTION == 'upgrade' }
             }
