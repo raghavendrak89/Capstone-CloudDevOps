@@ -1,0 +1,41 @@
+pipeline {
+   agent any
+   parameters {
+        choice(
+            choices: ['install' , 'upgrade'],
+            description: 'Install/Upgrade',
+            name: 'DEPLOYMENT_ACTION')
+       	string(name: 'version', description: 'Deployment version')
+    }
+       stages {
+           stage('Install') {
+				when {
+					// Only say hello if a "greeting" is requested
+					expression { params.DEPLOYMENT_ACTION == 'install' }
+				}
+               	steps {
+                   	echo "Deploying webhook app .."
+               		sh "kubernetes/bg-deploy.sh webhook ${currentBuild.number} webhook-deployment.yaml"
+					sh(returnStdout: true, script: '''#!/bin/bash
+						echo "Installing the deployment .."
+						kubectl apply -f green.yaml
+						kubectl apply -f service.yaml 
+						echo "Successfully created the deployment"
+						fi
+					'''.stripIndent())
+				}
+				when {
+					expression { params.DEPLOYMENT_ACTION == 'upgrade' }
+				}
+               	steps {
+                   	echo "Deploying webhook app .."
+               		sh "kubernetes/bg-deploy.sh webhook ${currentBuild.number} webhook-deployment.yaml"
+					sh(returnStdout: true, script: '''#!/bin/bash
+						echo "Upgrading the deployment .."
+						BlueVersion=$(kubectl get service webhook -o=jsonpath='{.spec.selector.version}')
+						kubectl get deployment demochat-$BlueVersion -o=yaml --namespace=${NAMESPACE} | sed -e "s/$BlueVersion/params.REQUESTED_ACTION/g" | kubectl apply -f -
+					'''.stripIndent())
+				}
+       }
+   }
+}

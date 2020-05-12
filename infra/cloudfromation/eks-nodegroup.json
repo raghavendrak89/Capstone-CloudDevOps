@@ -1,0 +1,19 @@
+
+[
+    {
+        "ParameterKey": "EnvironmentName",
+        "ParameterValue": "rak-cluster"
+    },
+    {
+        "ParameterKey": "NodeGroupName",
+        "ParameterValue": "EKS-nodes"
+    },
+    {
+        "ParameterKey": "KeyName",
+        "ParameterValue": "rak-cluster"
+    },
+    {
+        "ParameterKey": "EKSClusterName",
+        "ParameterValue": "rak-cluster"
+    }
+]

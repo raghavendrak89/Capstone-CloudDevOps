@@ -1,0 +1,18 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: webhook-latest
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        name: webhook
+        version: "latest"
+    spec:
+      containers: 
+        - name: webhook
+          image: raghavendrak/udacity_capstone:latest
+          ports:
+            - name: http
+              containerPort: 8885
