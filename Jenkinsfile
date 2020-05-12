@@ -1,12 +1,11 @@
 pipeline {
    agent any
    stages {
-       stage('Install') {
+       stage('Upgrade[BG]') {
             steps {
-                sh 'echo "Installing the deployment .."'
-                sh 'kubectl apply -f ./kubernetes/webapp-deployment.yaml --validate=false'
-                sh 'kubectl apply -f ./kubernetes/webapp-service.yaml --validate=false'
-                sh 'echo "Successfully created the deployment"'
+                sh 'echo "Upgrading the deployment (Rolling upgrade) .."'
+                sh "kubectl set image deployments/webhook-latest webhook=raghavendrak/udacity_capstone:latest"
+                sh 'echo "Successfully upgraded the deployment"'
             }
        }
         stage('Test webhook') {

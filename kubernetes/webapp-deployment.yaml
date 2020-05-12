@@ -13,6 +13,7 @@ spec:
       containers: 
         - name: webhook
           image: raghavendrak/udacity_capstone:latest
+          imagePullPolicy: Always
           ports:
             - name: http
               containerPort: 8885
